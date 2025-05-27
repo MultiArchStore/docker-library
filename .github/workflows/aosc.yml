@@ -35,6 +35,13 @@ jobs:
           bash gen_dockerfile.sh     
           cp Dockerfile ..
 
+      - name: Change owner name into all lower case
+        id: change_name
+        run: |
+          owner_name="${{ github.repository_owner }}"
+          lower_case_name=${owner_name,,}
+          echo "lower_case_name=${lower_case_name}" >> "$GITHUB_OUTPUT"
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -49,8 +56,8 @@ jobs:
           platforms: linux/loong64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/aosc:${{ steps.docker_gen.outputs.IMG_VER }}-loong64
-            ghcr.io/${{ github.repository_owner }}/aosc:latest-loong64
+            ghcr.io/${{ steps.change_name.outputs.lower_case_name }}/aosc:${{ steps.docker_gen.outputs.IMG_VER }}-loong64
+            ghcr.io/${{ steps.change_name.outputs.lower_case_name }}/aosc:latest-loong64
           outputs: type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
