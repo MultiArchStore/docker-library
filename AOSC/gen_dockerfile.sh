@@ -25,7 +25,11 @@ fi
 # Fix tarball for docker
 mv "${TARBALL_NAME}" "${TARBALL_NAME}.tmp"
 # Recompress again
-tar xzvf - "${TARBALL_NAME}.tmp" | tar czvf "${TARBALL_NAME}"
+mkdir tmp
+tar xf "${TARBALL_NAME}.tmp" -C tmp
+rm "${TARBALL_NAME}.tmp"
+tar cfz "${TARBALL_NAME}" tmp
+rm -rf tmp
 
 IMG_VER=$(echo "${TARBALL_NAME}" | perl -nle '/^aosc-.*_(\d+)_.*$/; print $1')
 if [[ "x${IMG_VER}" == 'x' && "x${UNATTENDED}" != 'x' ]]; then
