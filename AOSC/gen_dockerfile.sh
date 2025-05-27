@@ -16,7 +16,7 @@ if [[ "x${TARBALL_URL}" == "x" ]]; then
 fi
 TARBALL_NAME="$(basename "${TARBALL_URL}")"
 echo "[+] Downloading tarball..."
-wget -c "${TARBALL_URL}"
+wget -q -c "${TARBALL_URL}"
 if ! test -e "${TARBALL_NAME}"; then
     echo "[!] File not found?!"
     exit 127
@@ -25,11 +25,13 @@ fi
 # Fix tarball for docker
 mv "${TARBALL_NAME}" "${TARBALL_NAME}.tmp"
 # Recompress again
-mkdir tmp
-tar xf "${TARBALL_NAME}.tmp" -C tmp
+fakeroot mkdir tmp
+echo "[+] Extracting tarball..."
+fakeroot tar xf "${TARBALL_NAME}.tmp" -C tmp
 rm "${TARBALL_NAME}.tmp"
-tar cfz "${TARBALL_NAME}" tmp
-rm -rf tmp
+echo "[+] Fixing tarball..."
+fakeroot tar cfz "${TARBALL_NAME}" tmp
+fakeroot rm -rf tmp
 
 IMG_VER=$(echo "${TARBALL_NAME}" | perl -nle '/^aosc-.*_(\d+)_.*$/; print $1')
 if [[ "x${IMG_VER}" == 'x' && "x${UNATTENDED}" != 'x' ]]; then
