@@ -21,6 +21,12 @@ if ! test -e "${TARBALL_NAME}"; then
     echo "[!] File not found?!"
     exit 127
 fi
+
+# Fix tarball for docker
+mv "${TARBALL_NAME}" "${TARBALL_NAME}.tmp"
+# Recompress again
+tar xzvf - "${TARBALL_NAME}.tmp" | tar czvf "${TARBALL_NAME}"
+
 IMG_VER=$(echo "${TARBALL_NAME}" | perl -nle '/^aosc-.*_(\d+)_.*$/; print $1')
 if [[ "x${IMG_VER}" == 'x' && "x${UNATTENDED}" != 'x' ]]; then
   echo "[!] Unable to deduce the image version, please manually set version"
