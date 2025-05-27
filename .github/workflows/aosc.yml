@@ -28,6 +28,7 @@ jobs:
       - name: Generate Docker file
         id: docker_gen
         run: |
+          ls
           cd AOSC
           bash gen_dockerfile.sh     
           cp Dockerfile ..
