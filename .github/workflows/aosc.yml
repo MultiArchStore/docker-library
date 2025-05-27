@@ -10,13 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-
       - name: Setup Git
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -28,8 +31,7 @@ jobs:
       - name: Generate Docker file
         id: docker_gen
         run: |
-          ls
-          cd AOSC
+          cd ${{ github.workspace }}/AOSC
           bash gen_dockerfile.sh     
           cp Dockerfile ..
 
