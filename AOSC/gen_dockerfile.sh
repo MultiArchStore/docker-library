@@ -4,7 +4,7 @@ HTML_CONTENT=$(curl "$BASE_URL")
 
 # 提取所有 .tar.xz 文件并排序
 latest_file=$(echo "$HTML_CONTENT" | \
-  grep -oP '(?<=<a href=")aosc-os_buildkit_\d{8}_loongarch64\.tar\.xz(?=")' | \
+  grep -oP '(?<=<a href=")aosc-os_buildkit_\d{8}_loongarch64\.squashfs(?=")' | \
   sort -t'_' -k3nr | head -1)
 
 echo "Latest version: $BASE_URL$latest_file"
@@ -22,16 +22,16 @@ if ! test -e "${TARBALL_NAME}"; then
     exit 127
 fi
 
-# Fix tarball for docker
-mv "${TARBALL_NAME}" "${TARBALL_NAME}.tmp"
-# Recompress again
-fakeroot mkdir tmp
-echo "[+] Extracting tarball..."
-fakeroot tar xf "${TARBALL_NAME}.tmp" -C tmp
-rm "${TARBALL_NAME}.tmp"
-echo "[+] Fixing tarball..."
-fakeroot tar cfz "${TARBALL_NAME}" tmp
-fakeroot rm -rf tmp
+# Convert squashfs to tar.gz
+TARGZ_NAME="${TARBALL_NAME%.squashfs}.tar.gz"
+echo "[+] Converting squashfs to tar.gz..."
+sqfs2tar "${TARBALL_NAME}" | gzip > "${TARGZ_NAME}"
+
+# Remove the squashfs file
+rm -f "${TARBALL_NAME}"
+TARBALL_NAME="${TARGZ_NAME}"
+
+TAGNAME="${TAGNAME:-aosc-os}"
 
 IMG_VER=$(echo "${TARBALL_NAME}" | perl -nle '/^aosc-.*_(\d+)_.*$/; print $1')
 if [[ "x${IMG_VER}" == 'x' && "x${UNATTENDED}" != 'x' ]]; then
