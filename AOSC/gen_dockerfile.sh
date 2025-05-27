@@ -49,7 +49,7 @@ ADD "${TARBALL_NAME}" /
 CMD ["/bin/bash"]
 ARG CONT_IMG_VER
 ENV CONT_IMG_VER=${IMG_VER}
-RUN sed -i 's/*               -       nice/#*               -       nice/' /etc/security/limits.conf
+RUN sed -i 's/*               -       nice/#*               -       nice/' /etc/security/limits.conf || true
 EOF
 
 echo " OK!"
